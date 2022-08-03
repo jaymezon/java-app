@@ -2,7 +2,7 @@ node{
     stage('Git Checkout'){
 		git credentialsId: 'github', 
 		    url: 'https://github.com/jaymezon/java-app',
-			branch: "validator-backend"
+			branch: "my-app"
 	}
 	
     stage('Maven Build'){
