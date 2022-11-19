@@ -1,16 +1,42 @@
 pipeline{
     agent any
     tools {
-      maven 'maven3'
+      maven 'maven-3'
+      terraform 'terraform'
     }
     environment {
       DOCKER_TAG = getVersion()
     }
+    
     stages{
+        stage ("terraform init") {
+            steps {
+                sh 'terraform init'
+            }
+        }
+        stage ("terraform fmt") {
+            steps {
+                sh 'terraform fmt'
+            }
+        }
+        stage ("terraform validate") {
+            steps {
+                sh 'terraform validate'
+            }
+        }
+        stage ("terrafrom plan") {
+            steps {
+                sh 'terraform plan '
+            }
+        }
+        stage ("terraform apply") {
+            steps {
+                sh 'terraform apply --auto-approve'
+            }
+        }
         stage('SCM'){
             steps{
-                git credentialsId: 'github', 
-                    url: 'https://github.com/javahometech/dockeransiblejenkins'
+                git branch: 'main', credentialsId: 'github', url: 'https://github.com/jaymezon/docker-ansible-jenkins'
             }
         }
         
@@ -22,25 +48,28 @@ pipeline{
         
         stage('Docker Build'){
             steps{
-                sh "docker build . -t kammana/hariapp:${DOCKER_TAG} "
+                sh "docker build . -t jaymezon/sembeapp:${DOCKER_TAG} "
             }
         }
         
-        stage('DockerHub Push'){
+        stage('DockerHub Push Image'){
             steps{
+                // login to dockerhub account and push image
                 withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
-                    sh "docker login -u kammana -p ${dockerHubPwd}"
+                    sh "docker login -u jaymezon -p ${dockerHubPwd}"
                 }
                 
-                sh "docker push kammana/hariapp:${DOCKER_TAG} "
+                sh "docker push jaymezon/sembeapp:${DOCKER_TAG} "
             }
         }
         
         stage('Docker Deploy'){
             steps{
-              ansiblePlaybook credentialsId: 'dev-server', disableHostKeyChecking: true, extras: "-e DOCKER_TAG=${DOCKER_TAG}", installation: 'ansible', inventory: 'dev.inv', playbook: 'deploy-docker.yml'
+              ansiblePlaybook credentialsId: 'dev-server', disableHostKeyChecking: true, extras: "-e DOCKER_TAG=${DOCKER_TAG}",
+              installation: 'ansible', inventory: 'dev.inv', playbook: 'deploy-docker.yml'
             }
         }
+        
     }
 }
 
