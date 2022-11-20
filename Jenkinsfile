@@ -13,12 +13,34 @@ pipeline{
             steps{
                 git branch: 'main', credentialsId: 'github', url: 'https://github.com/jaymezon/docker-ansible-jenkins'
             }
-        }
+        }       
+        
         stage('Maven Build'){
             steps{
                 sh "mvn clean package"
             }
         }
+        stage('SonarQube Analysis') {
+            def mvnHome =  tool name: 'maven-3', type: 'maven'
+            withSonarQubeEnv('sonar-8') { 
+                sh "${mvnHome}/bin/mvn sonar:sonar"
+            }
+        }
+    
+        stage("Quality Gate Statuc Check"){
+                timeout(time: 1, unit: 'HOURS') {
+                    def qg = waitForQualityGate()
+                    if (qg.status != 'OK') {
+                        slackSend baseUrl: 'https://hooks.slack.com/services/',
+                        channel: '#jenkins-pipeline-demo',
+                        color: 'danger', 
+                        message: 'SonarQube Analysis Failed', 
+                        teamDomain: 'jaymezon',
+                        tokenCredentialId: 'slack-demo'
+                        error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                    }
+               }
+        } 
         
         stage('Docker Build'){
             steps{
@@ -76,7 +98,11 @@ pipeline{
               installation: 'ansible', inventory: 'dev.inv', playbook: 'deploy-docker.yml'
             }
         }
-        
+        stage('Email Notification'){
+            mail bcc: '', body: '''Hi Welcome to jenkins email alerts
+            Thanks
+            Hari''', cc: '', from: '', replyTo: '', subject: 'Jenkins Job', to: 'jaymezon@gmail.com'
+        }
     }
 }
 
