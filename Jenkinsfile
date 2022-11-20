@@ -8,12 +8,7 @@ pipeline{
       DOCKER_TAG = getVersion()
     }
     
-    stages{
-        stage('SCM'){
-            steps{
-                git branch: 'main', credentialsId: 'github', url: 'https://github.com/jaymezon/docker-ansible-jenkins'
-            }
-        }       
+    stages{            
         
         stage('Maven Build'){
             steps{
@@ -41,7 +36,11 @@ pipeline{
                     }
                }
         } 
-        
+        stage('SCM'){
+            steps{
+                git branch: 'main', credentialsId: 'github', url: 'https://github.com/jaymezon/docker-ansible-jenkins'
+            }
+        }  
         stage('Docker Build'){
             steps{
                 sh "docker build . -t jaymezon/sembeapp:${DOCKER_TAG} "
