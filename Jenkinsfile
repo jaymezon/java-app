@@ -14,6 +14,28 @@ pipeline{
                 git branch: 'main', credentialsId: 'github', url: 'https://github.com/jaymezon/docker-ansible-jenkins'
             }
         }
+        stage('Maven Build'){
+            steps{
+                sh "mvn clean package"
+            }
+        }
+        
+        stage('Docker Build'){
+            steps{
+                sh "docker build . -t jaymezon/sembeapp:${DOCKER_TAG} "
+            }
+        }
+        
+        stage('DockerHub Push Image'){
+            steps{
+                // login to dockerhub account and push image
+                withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
+                    sh "docker login -u jaymezon -p ${dockerHubPwd}"
+                }
+                
+                sh "docker push jaymezon/sembeapp:${DOCKER_TAG} "
+            }
+        }
         stage ("terraform init") {
             steps {
                 sh 'terraform init'
@@ -46,28 +68,7 @@ pipeline{
            }
         }       
         
-        stage('Maven Build'){
-            steps{
-                sh "mvn clean package"
-            }
-        }
         
-        stage('Docker Build'){
-            steps{
-                sh "docker build . -t jaymezon/sembeapp:${DOCKER_TAG} "
-            }
-        }
-        
-        stage('DockerHub Push Image'){
-            steps{
-                // login to dockerhub account and push image
-                withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
-                    sh "docker login -u jaymezon -p ${dockerHubPwd}"
-                }
-                
-                sh "docker push jaymezon/sembeapp:${DOCKER_TAG} "
-            }
-        }
         
         stage('Docker Deploy'){
             steps{
