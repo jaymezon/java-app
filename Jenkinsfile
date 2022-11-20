@@ -14,29 +14,28 @@ pipeline{
                 git branch: 'main', credentialsId: 'github', url: 'https://github.com/jaymezon/docker-ansible-jenkins'
             }
         }
-        
         stage('Maven Build'){
             steps{
                 sh "mvn clean package"
             }
         }
         
-        stage('Compile-Package'){
-            // Get maven home path
-            steps{
-                def mvnHome =  tool name: 'maven-3', type: 'maven'   
-                sh "${mvnHome}/bin/mvn package"
-            }
-        }
+//         stage('Compile-Package'){
+//             // Get maven home path
+//             steps{
+//                 def mvnHome =  tool name: 'maven-3', type: 'maven'   
+//                 sh "${mvnHome}/bin/mvn package"
+//             }
+//         }
         
-        stage('SonarQube Analysis') {
-            steps{
-                    def mvnHome =  tool name: 'maven-3', type: 'maven'
-                    withSonarQubeEnv('sonar-8') { 
-                    sh "${mvnHome}/bin/mvn sonar:sonar"
-                    }
-                }
-            }
+//         stage('SonarQube Analysis') {
+//             steps{
+//                     def mvnHome =  tool name: 'maven-3', type: 'maven'
+//                     withSonarQubeEnv('sonar-8') { 
+//                     sh "${mvnHome}/bin/mvn sonar:sonar"
+//                     }
+//                 }
+//             }
             
         // stage("Quality Gate Statuc Check"){
         //     steps{
