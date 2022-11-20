@@ -9,38 +9,6 @@ pipeline{
     }
     
     stages{
-        stage ("terraform init") {
-            steps {
-                sh 'terraform init'
-            }
-        }
-        stage ("terraform fmt") {
-            steps {
-                sh 'terraform fmt'
-            }
-        }
-        stage ("terraform validate") {
-            steps {
-                sh 'terraform validate'
-            }
-        }
-        stage ("terrafrom plan") {
-            steps {
-                sh 'terraform plan '
-            }
-        }
-        // stage ("terraform apply") {
-        //     steps {
-        //         sh 'terraform apply --auto-approve'
-        //     }
-        // } https://www.coachdevops.com/2021/07/jenkins-terraform-integration-how-do.html
-        stage ("terraform Action") {
-            steps {
-                echo "Terraform action is --> ${action}"
-                sh ('terraform ${action} --auto-approve') 
-           }
-        }
-
         stage('SCM'){
             steps{
                 git branch: 'main', credentialsId: 'github', url: 'https://github.com/jaymezon/docker-ansible-jenkins'
@@ -85,14 +53,38 @@ pipeline{
         //             }
         //         }
         //     }
-        // }    
-        
-        stage('Email Notification'){
-            mail bcc: '', body: '''Hi Welcome to jenkins email alerts
-            Thanks
-            Jay''', cc: '', from: '', replyTo: '', subject: 'Jenkins Job', to: 'jaymezon@gmail.com'
+        // }   
+        stage ("terraform init") {
+            steps {
+                sh 'terraform init'
+            }
         }
-
+        stage ("terraform fmt") {
+            steps {
+                sh 'terraform fmt'
+            }
+        }
+        stage ("terraform validate") {
+            steps {
+                sh 'terraform validate'
+            }
+        }
+        stage ("terrafrom plan") {
+            steps {
+                sh 'terraform plan '
+            }
+        }
+        // stage ("terraform apply") {
+        //     steps {
+        //         sh 'terraform apply --auto-approve'
+        //     }
+        // } https://www.coachdevops.com/2021/07/jenkins-terraform-integration-how-do.html
+        stage ("terraform Action") {
+            steps {
+                echo "Terraform action is --> ${action}"
+                sh ('terraform ${action} --auto-approve') 
+           }
+        } 
         stage('Docker Build'){
             steps{
                 sh "docker build . -t jaymezon/sembeapp:${DOCKER_TAG} "
@@ -115,6 +107,11 @@ pipeline{
               ansiblePlaybook credentialsId: 'dev-server', disableHostKeyChecking: true, extras: "-e DOCKER_TAG=${DOCKER_TAG}",
               installation: 'ansible', inventory: 'dev.inv', playbook: 'deploy-docker.yml'
             }
+        }
+        stage('Email Notification'){
+            mail bcc: '', body: '''Hi Welcome to jenkins email alerts
+            Thanks
+            Jay''', cc: '', from: '', replyTo: '', subject: 'Jenkins Job', to: 'jaymezon@gmail.com'
         }
         
     }
