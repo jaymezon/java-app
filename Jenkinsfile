@@ -53,6 +53,46 @@ pipeline{
             }
         }
         
+        stage('Compile-Package'){
+            // Get maven home path
+            steps{
+                def mvnHome =  tool name: 'maven-3', type: 'maven'   
+                sh "${mvnHome}/bin/mvn package"
+            }
+        }
+        
+        stage('SonarQube Analysis') {
+            steps{
+                    def mvnHome =  tool name: 'maven-3', type: 'maven'
+                    withSonarQubeEnv('sonar-8') { 
+                    sh "${mvnHome}/bin/mvn sonar:sonar"
+                    }
+                }
+            }
+            
+        // stage("Quality Gate Statuc Check"){
+        //     steps{
+        //         timeout(time: 1, unit: 'HOURS') {
+        //             def qg = waitForQualityGate()
+        //             if (qg.status != 'OK') {
+        //                 slackSend baseUrl: 'https://hooks.slack.com/services/',
+        //                 channel: '#jenkins-pipeline-demo',
+        //                 color: 'danger', 
+        //                 message: 'SonarQube Analysis Failed', 
+        //                 teamDomain: 'jaymezon',
+        //                 tokenCredentialId: 'slack-demo'
+        //                 error "Pipeline aborted due to quality gate failure: ${qg.status}"
+        //             }
+        //         }
+        //     }
+        // }    
+        
+        stage('Email Notification'){
+            mail bcc: '', body: '''Hi Welcome to jenkins email alerts
+            Thanks
+            Jay''', cc: '', from: '', replyTo: '', subject: 'Jenkins Job', to: 'jaymezon@gmail.com'
+        }
+
         stage('Docker Build'){
             steps{
                 sh "docker build . -t jaymezon/sembeapp:${DOCKER_TAG} "
