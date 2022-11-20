@@ -107,11 +107,13 @@ pipeline{
               installation: 'ansible', inventory: 'dev.inv', playbook: 'deploy-docker.yml'
             }
         }
-        stage('Email Notification'){
-            mail bcc: '', body: '''Hi Welcome to jenkins email alerts
-            Thanks
-            Jay''', cc: '', from: '', replyTo: '', subject: 'Jenkins Job', to: 'jaymezon@gmail.com'
-        }
+//         stage('Email Notification'){
+//             steps{
+//                 mail bcc: '', body: '''Hi Welcome to jenkins email alerts
+//                 Thanks
+//                 Jay''', cc: '', from: '', replyTo: '', subject: 'Jenkins Job', to: 'jaymezon@gmail.com'
+//             }
+//         }
         
     }
 }
