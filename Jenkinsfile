@@ -9,7 +9,11 @@ pipeline{
     }
     
     stages{            
-        
+        stage('SCM'){
+            steps{
+                git branch: 'main', credentialsId: 'github', url: 'https://github.com/jaymezon/docker-ansible-jenkins'
+            }
+        } 
         stage('Maven Build'){
             steps{
                 sh "mvn clean package"
@@ -22,25 +26,20 @@ pipeline{
             }
         }
     
-        stage("Quality Gate Statuc Check"){
-                timeout(time: 1, unit: 'HOURS') {
-                    def qg = waitForQualityGate()
-                    if (qg.status != 'OK') {
-                        slackSend baseUrl: 'https://hooks.slack.com/services/',
-                        channel: '#jenkins-pipeline-demo',
-                        color: 'danger', 
-                        message: 'SonarQube Analysis Failed', 
-                        teamDomain: 'jaymezon',
-                        tokenCredentialId: 'slack-demo'
-                        error "Pipeline aborted due to quality gate failure: ${qg.status}"
-                    }
-               }
-        } 
-        stage('SCM'){
-            steps{
-                git branch: 'main', credentialsId: 'github', url: 'https://github.com/jaymezon/docker-ansible-jenkins'
-            }
-        }  
+//         stage("Quality Gate Statuc Check"){
+//                 timeout(time: 1, unit: 'HOURS') {
+//                     def qg = waitForQualityGate()
+//                     if (qg.status != 'OK') {
+//                         slackSend baseUrl: 'https://hooks.slack.com/services/',
+//                         channel: '#jenkins-pipeline-demo',
+//                         color: 'danger', 
+//                         message: 'SonarQube Analysis Failed', 
+//                         teamDomain: 'jaymezon',
+//                         tokenCredentialId: 'slack-demo'
+//                         error "Pipeline aborted due to quality gate failure: ${qg.status}"
+//                     }
+//                }
+//         }          
         stage('Docker Build'){
             steps{
                 sh "docker build . -t jaymezon/sembeapp:${DOCKER_TAG} "
