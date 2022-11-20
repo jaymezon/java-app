@@ -9,6 +9,11 @@ pipeline{
     }
     
     stages{
+        stage('SCM'){
+            steps{
+                git branch: 'main', credentialsId: 'github', url: 'https://github.com/jaymezon/docker-ansible-jenkins'
+            }
+        }
         stage ("terraform init") {
             steps {
                 sh 'terraform init'
@@ -39,12 +44,7 @@ pipeline{
                 echo "Terraform action is --> ${action}"
                 sh ('terraform ${action} --auto-approve') 
            }
-        }
-        stage('SCM'){
-            steps{
-                git branch: 'main', credentialsId: 'github', url: 'https://github.com/jaymezon/docker-ansible-jenkins'
-            }
-        }
+        }       
         
         stage('Maven Build'){
             steps{
