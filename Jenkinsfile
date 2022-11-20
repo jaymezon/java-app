@@ -20,32 +20,32 @@ pipeline{
             }
         }
         
-        stage('Compile-Package'){
-            // Get maven home path
-            steps{
-                 // Get maven home path
-                def mvnHome =  tool name: 'maven-3', type: 'maven'   
-                sh "${mvnHome}/bin/mvn package"
-            }
-        } 
-        stage('SonarQube Analysis') {
-            steps{
-                    def mvnHome =  tool name: 'maven-3', type: 'maven'
-                    withSonarQubeEnv('sonar-8') { 
-                    sh "${mvnHome}/bin/mvn sonar:sonar"
-                    }
-                }
-         }
-        stage('Compile-Package') {
-            steps{
-                timeout(time: 1, unit: 'HOURS') {
-                      def qg = waitForQualityGate()
-                      if (qg.status != 'OK') {
-                          error "Pipeline aborted due to quality gate failure: ${qg.status}"
-                      }
-                  } 
-                }
-            }
+//         stage('Compile-Package'){
+//             // Get maven home path
+//             steps{
+//                  // Get maven home path
+//                 def mvnHome =  tool name: 'maven-3', type: 'maven'   
+//                 sh "${mvnHome}/bin/mvn package"
+//             }
+//         } 
+//         stage('SonarQube Analysis') {
+//             steps{
+//                     def mvnHome =  tool name: 'maven-3', type: 'maven'
+//                     withSonarQubeEnv('sonar-8') { 
+//                     sh "${mvnHome}/bin/mvn sonar:sonar"
+//                     }
+//                 }
+//          }
+//         stage('Compile-Package') {
+//             steps{
+//                 timeout(time: 1, unit: 'HOURS') {
+//                       def qg = waitForQualityGate()
+//                       if (qg.status != 'OK') {
+//                           error "Pipeline aborted due to quality gate failure: ${qg.status}"
+//                       }
+//                   } 
+//                 }
+//             }
         
         // stage("Quality Gate Statuc Check"){
         //     steps{
