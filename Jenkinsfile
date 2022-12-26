@@ -1,18 +1,14 @@
-@Library("mylibs") _
 pipeline {
   agent any
-  tools {
-    maven 'maven2'
-  }
   stages{
-    stage("Maven Build"){
+    stage('build'){
       steps{
-        sh "mvn clean package"
+        sh '.mvnw clean package -Dcheckstyle.skip'
       }
     }
-    stage("Deploy To Dev"){
+    stage('Scan'){
       steps{
-        tomcatDeploy("tomcat-dev","ec2-user",["172.31.13.89","172.31.13.89"])
+        sh 'grype dir:. --scope AllLayers'
       }
     }
   }

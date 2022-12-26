@@ -1,0 +1,29 @@
+pipeline {
+  agent any
+  stages{
+    stage('Delete image if exists'){
+      steps{
+        sh '''
+            docker rmi java-docker:latest
+            rm -f java-docker-sbom.json
+        '''
+      }
+    }
+    stage('Create container image'){
+      steps{
+        sh 'docker build --tag java-docker:latest .'
+      }
+    }
+    // stops if any crical vulnerability found
+    stage('Generate SBOM'){
+      steps{
+        sh 'grype java-docker:latest --scope AllLayers --fail-on=critical'
+      }
+    }
+    stage('Finally done'){
+      steps{
+        echo 'No critical items found'
+      }
+    }
+  }
+}
